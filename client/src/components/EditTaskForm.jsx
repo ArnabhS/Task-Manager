@@ -1,19 +1,24 @@
+"use client"
 import { useState, useEffect } from 'react';
 
 export default function EditTaskFormModal({ onClose, onSave, task }) {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  const [title, setTitle] = useState(task?.title || '');
+  const [description, setDescription] = useState(task?.description || '');
 
   useEffect(() => {
     if (task) {
-      setTitle(task.title);
-      setDescription(task.description);
+      console.log("Loaded task for editing:", task);
+      setTitle(task.title || '');
+      setDescription(task.description || '');
     }
   }, [task]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave({ title, description });
+    console.log(`Saving task with ID: ${task?._id}`, { title, description });
+    if (task?._id) {
+      onSave(task._id, { title, description });
+    }
   };
 
   return (
@@ -33,7 +38,7 @@ export default function EditTaskFormModal({ onClose, onSave, task }) {
             />
           </div>
           <div className="mb-4">
-            <label htmlFor="description" className="block  text-sm font-medium text-gray-700">Description</label>
+            <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
             <textarea
               id="description"
               value={description}
