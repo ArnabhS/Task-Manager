@@ -3,10 +3,16 @@ import { useState } from 'react';
 export default function TaskForm({ onClose, onSave }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [points, setPoints] = useState('');
+
+  const randomRating= ()=>{
+    return Math.floor(Math.random()*5)+1
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave({ title, description });
+    const rating= randomRating()
+    onSave({ title, description, points, rating });
     setTitle('');
     setDescription('');
   };
@@ -23,6 +29,17 @@ export default function TaskForm({ onClose, onSave }) {
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              className="w-full text-black px-3 py-2 mt-1 border rounded-md focus:outline-none focus:ring focus:ring-indigo-200"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label htmlFor="title" className="block text-sm font-medium text-gray-700">Points</label>
+            <input
+              type="number"
+              id="title"
+              value={points}
+              onChange={(e) => setPoints(e.target.value)}
               className="w-full text-black px-3 py-2 mt-1 border rounded-md focus:outline-none focus:ring focus:ring-indigo-200"
               required
             />

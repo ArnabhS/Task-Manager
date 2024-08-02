@@ -15,6 +15,10 @@ const userSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    subscription:{
+      type:Boolean,
+      default:false
+    }
   },
   {
     timestamps: true,

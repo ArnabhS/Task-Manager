@@ -85,4 +85,17 @@ const logoutUser = asyncHandler(async (req, res) => {
     res.json({ message: 'User logged out' });
   });
   
-module.exports = { registerUser, loginUser, logoutUser, getUser };
+  const handleSubscription = async (req, res)=>{
+    try {
+      const user = await User.findByIdAndUpdate(req.params.id, { subscription: true }, { new: true });
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      res.status(200).json(user);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Failed to subscribe' });
+    }
+  }
+
+module.exports = { registerUser, loginUser, logoutUser, getUser, handleSubscription };

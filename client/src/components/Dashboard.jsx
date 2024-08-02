@@ -5,6 +5,7 @@ import axios from "axios";
 import TaskList from "@/components/TaskList";
 import TaskFormModal from "@/components/TaskForm";
 import EditTaskFormModal from "@/components/EditTaskForm";
+import Link from "next/link";
 
 export default function Dashboard({ userId }) {
   const router = useRouter();
@@ -117,7 +118,13 @@ export default function Dashboard({ userId }) {
 
   return (
     <div className="flex flex-col md:flex-row h-screen">
+      {tasks.length >= 5 && !user?.subscription && (
+        <div className="mb-4">
+          <p>You've reached the limit of 5 tasks. Please <Link href="/subscribe" className="text-blue-500 underline">subscribe</Link> to add more tasks.</p>
+        </div>
+      )}
       <aside className="w-full md:w-64 bg-gray-800 text-white p-4 md:p-6">
+        
         <div className="flex items-center space-x-4 mb-4 md:mb-6">
           <div>
             {user ? (

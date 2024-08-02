@@ -13,6 +13,16 @@ const taskSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  rating:{
+    type:Number,
+   min:0,
+   max:5
+  },
+  points:{
+    type:Number,
+    min:0,
+    max:100
+  },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
