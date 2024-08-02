@@ -23,6 +23,12 @@ const taskSchema = new mongoose.Schema({
     min:0,
     max:100
   },
+  startTime:{
+    type:Date
+  },
+  elaspedTime:{
+    type:Number
+  },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

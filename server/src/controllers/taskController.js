@@ -21,7 +21,8 @@ const createTask = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const taskCount = await Task.countDocuments({ userId });
+    const taskCount = await Task.countDocuments({ userId })+1;
+    console.log(taskCount)
     if (taskCount > 5 && !user.subscription) {
       return res.status(403).json({ error: 'Subscription required to add more than 5 tasks' });
     }

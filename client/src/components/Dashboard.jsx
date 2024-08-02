@@ -116,13 +116,14 @@ export default function Dashboard({ userId }) {
     }
   };
 
+  const handleClick = ()=>{
+    router.push(`/subscribe/${userId}`)
+  }
+
+
   return (
     <div className="flex flex-col md:flex-row h-screen">
-      {tasks.length >= 5 && !user?.subscription && (
-        <div className="mb-4">
-          <p>You've reached the limit of 5 tasks. Please <Link href="/subscribe" className="text-blue-500 underline">subscribe</Link> to add more tasks.</p>
-        </div>
-      )}
+      
       <aside className="w-full md:w-64 bg-gray-800 text-white p-4 md:p-6">
         
         <div className="flex items-center space-x-4 mb-4 md:mb-6">
@@ -156,6 +157,11 @@ export default function Dashboard({ userId }) {
           >
             + Add New Task
           </button>
+          {tasks.length >= 5 && !user?.subscription && (
+        <div className="mb-4">
+          <p className="text-black">You've reached the limit of 5 tasks. Please <button onClick={handleClick} className="text-blue-500 p-2 rounded-lg underline">subscribe</button> to add more tasks.</p>
+        </div>
+      )}
         </div>
         <TaskList tasks={tasks} onEdit={handleEditTask} onDelete={deleteTask} onComplete={completeTask} />
       </main>
