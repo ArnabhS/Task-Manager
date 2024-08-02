@@ -18,6 +18,12 @@ const userSchema = mongoose.Schema(
     subscription:{
       type:Boolean,
       default:false
+    },
+    stripeCustomerId:{
+      type:String
+    },
+    stripeSubscriptionId:{
+      type:String
     }
   },
   {
