@@ -5,14 +5,11 @@ export default function TaskForm({ onClose, onSave }) {
   const [description, setDescription] = useState('');
   const [points, setPoints] = useState('');
 
-  const randomRating= ()=>{
-    return Math.floor(Math.random()*5)+1
-  }
-
+  
   const handleSubmit = (e) => {
     e.preventDefault();
-    const rating= randomRating()
-    onSave({ title, description, points, rating });
+    
+    onSave({ title, description, points });
     setTitle('');
     setDescription('');
   };

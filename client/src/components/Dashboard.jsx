@@ -1,3 +1,4 @@
+// pages/dashboard.js
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -5,6 +6,7 @@ import axios from "axios";
 import TaskList from "@/components/TaskList";
 import TaskFormModal from "@/components/TaskForm";
 import EditTaskFormModal from "@/components/EditTaskForm";
+import RatingModal from "@/components/RatingModal";
 import Link from "next/link";
 import Subscribe from "./Subscription";
 
@@ -15,8 +17,10 @@ export default function Dashboard({ userId }) {
   const [showEditTaskFormModal, setShowEditTaskFormModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
   const [user, setUser] = useState(null);
-  const [taskLimitReached, setTaskLimitReached] = useState(false); // State to manage task limit
+  const [taskLimitReached, setTaskLimitReached] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [completedTaskId, setCompletedTaskId] = useState(null);
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -103,6 +107,9 @@ export default function Dashboard({ userId }) {
       const task = tasks.find((task) => task._id === id);
       const updatedTask = { ...task, completed: !task.completed };
       await updateTask(id, updatedTask);
+      setCompletedTaskId(id);
+      if(task.completed == false)
+      setShowRatingModal(true);
     } catch (error) {
       if (error.response && error.response.status === 401) {
         router.push("/login");
@@ -129,6 +136,20 @@ export default function Dashboard({ userId }) {
     const updatedTask = tasks.find((task) => task._id === id);
     if (updatedTask) {
       await updateTask(id, { ...updatedTask, ...update });
+    }
+  };
+
+  const handleRatingSave = async (rating) => {
+    try {
+      const task = tasks.find((task) => task._id === completedTaskId);
+      const score = (rating * task.points) / 5;
+      const updatedTask = { ...task, rating: rating, score: score };
+      await updateTask(completedTaskId, updatedTask);
+      setShowRatingModal(false);
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        router.push("/login");
+      }
     }
   };
 
@@ -174,14 +195,14 @@ export default function Dashboard({ userId }) {
       <main className="flex-1 p-4 md:p-8 bg-gray-100">
         <div className="flex justify-between items-center mb-4 md:mb-6">
           <h1 className="text-2xl md:text-3xl font-bold text-black">All Tasks</h1>
-          {!taskLimitReached && !isSubscribed && (
+         
             <button
               onClick={() => setShowTaskFormModal(true)}
               className="py-2 px-4 bg-indigo-500 text-white rounded hover:bg-indigo-700"
             >
               + Add New Task
             </button>
-          )}
+        
         </div>
 
         {taskLimitReached ? (
@@ -209,6 +230,12 @@ export default function Dashboard({ userId }) {
           onClose={() => setShowEditTaskFormModal(false)}
           onSave={(id, updatedTask) => updateTask(id, updatedTask)}
           task={selectedTask}
+        />
+      )}
+      {showRatingModal && (
+        <RatingModal
+          onClose={() => setShowRatingModal(false)}
+          onSave={handleRatingSave}
         />
       )}
     </div>

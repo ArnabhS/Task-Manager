@@ -4,6 +4,7 @@ import Stopwatch from './Stopwatch';
 export default function TaskList({ tasks, onEdit, onDelete, onComplete, onUpdate }) {
   const calculateScore = (rating, points) => {
     if (rating && points) return (rating * points) / 5;
+    return 0;
   };
 
   return (
