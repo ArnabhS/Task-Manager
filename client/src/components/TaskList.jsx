@@ -1,4 +1,4 @@
-
+import React from 'react';
 import Stopwatch from './Stopwatch';
 
 export default function TaskList({ tasks, onEdit, onDelete, onComplete, onUpdate }) {

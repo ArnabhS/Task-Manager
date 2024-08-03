@@ -38,12 +38,12 @@ const createTask = async (req, res) => {
 
 const updateTask = async (req, res) => {
   const { id } = req.params;
-  const { title, description, completed, rating, points } = req.body;
+  const { title, description, completed, rating, points, startTime, elapsedTime } = req.body;
 
   try {
     const task = await Task.findByIdAndUpdate(
       id,
-      { title, description, completed, rating, points },
+      { title, description, completed, rating, points, startTime, elapsedTime },
       { new: true }
     );
     if (!task) {

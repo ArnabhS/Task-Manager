@@ -26,7 +26,7 @@ const taskSchema = new mongoose.Schema({
   startTime:{
     type:Date
   },
-  elaspedTime:{
+  elapsedTime:{
     type:Number
   },
   userId: {

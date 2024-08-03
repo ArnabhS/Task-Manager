@@ -5,7 +5,6 @@ import axios from "axios";
 import TaskList from "@/components/TaskList";
 import TaskFormModal from "@/components/TaskForm";
 import EditTaskFormModal from "@/components/EditTaskForm";
-import Link from "next/link";
 
 export default function Dashboard({ userId }) {
   const router = useRouter();
@@ -34,7 +33,9 @@ export default function Dashboard({ userId }) {
         const response = await axios.get(`http://localhost:5000/api/user/${userId}`, {
           withCredentials: true,
         });
-        setUser(response.data);
+        console.log(response.data, "user");
+        const data = response.data;
+        setUser(data);
       } catch (error) {
         if (error.response && error.response.status === 401) {
           router.push("/login");
@@ -48,14 +49,16 @@ export default function Dashboard({ userId }) {
 
   const addTask = async (task) => {
     try {
-      const response = await axios.post("http://localhost:5000/api/tasks", task, {
+      const response = await axios.post('http://localhost:5000/api/tasks', task, {
         withCredentials: true,
       });
       setTasks([...tasks, response.data]);
       setShowTaskFormModal(false);
     } catch (error) {
       if (error.response && error.response.status === 401) {
-        router.push("/login");
+        router.push('/login');
+      } else if (error.response && error.response.status === 403) {
+        alert('Subscription required to add more than 5 tasks.');
       }
     }
   };
@@ -116,22 +119,22 @@ export default function Dashboard({ userId }) {
     }
   };
 
-  const handleClick = ()=>{
-    router.push(`/subscribe/${userId}`)
-  }
-
+  const handleUpdateTask = async (id, update) => {
+    const updatedTask = tasks.find((task) => task._id === id);
+    if (updatedTask) {
+      await updateTask(id, { ...updatedTask, ...update });
+    }
+  };
 
   return (
     <div className="flex flex-col md:flex-row h-screen">
-      
       <aside className="w-full md:w-64 bg-gray-800 text-white p-4 md:p-6">
-        
         <div className="flex items-center space-x-4 mb-4 md:mb-6">
           <div>
             {user ? (
               <>
-                <h2 className="text-lg md:text-xl font-bold">{user.name}</h2>
-                <p className="text-xs md:text-sm">{user.email}</p>
+                <h2 className="text-lg md:text-xl text-white font-bold">{user.name}</h2>
+                <p className="text-xs text-white md:text-sm">{user.email}</p>
               </>
             ) : (
               <p>Loading...</p>
@@ -157,13 +160,14 @@ export default function Dashboard({ userId }) {
           >
             + Add New Task
           </button>
-          {tasks.length >= 5 && !user?.subscription && (
-        <div className="mb-4">
-          <p className="text-black">You've reached the limit of 5 tasks. Please <button onClick={handleClick} className="text-blue-500 p-2 rounded-lg underline">subscribe</button> to add more tasks.</p>
         </div>
-      )}
-        </div>
-        <TaskList tasks={tasks} onEdit={handleEditTask} onDelete={deleteTask} onComplete={completeTask} />
+        <TaskList
+          tasks={tasks}
+          onEdit={handleEditTask}
+          onDelete={deleteTask}
+          onComplete={completeTask}
+          onUpdate={handleUpdateTask}
+        />
       </main>
       {showTaskFormModal && (
         <TaskFormModal onClose={() => setShowTaskFormModal(false)} onSave={addTask} />

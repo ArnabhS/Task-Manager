@@ -8,7 +8,7 @@ const Stopwatch = ({ startTime, elapsedTime, onUpdate }) => {
   useEffect(() => {
     if (running) {
       timerRef.current = setInterval(() => {
-        setTime((prevTime) => prevTime + 1000);
+        setTime((prevTime) => prevTime + 1);
       }, 1000);
     } else {
       clearInterval(timerRef.current);
@@ -17,23 +17,36 @@ const Stopwatch = ({ startTime, elapsedTime, onUpdate }) => {
     return () => clearInterval(timerRef.current);
   }, [running]);
 
-  const handleStart = () => {
-    setRunning(true);
-    if (!startTime) {
-      onUpdate({ startTime: Date.now(), elapsedTime: time });
+  useEffect(() => {
+    setTime(elapsedTime || 0);
+  }, [elapsedTime]);
+
+  const handleStartPause = () => {
+    setRunning(!running);
+    if (!running) {
+      // Save the start time when the stopwatch starts
+      onUpdate({ startTime: new Date().toISOString() });
+    } else {
+      // Save the elapsed time when the stopwatch is paused
+      onUpdate({ elapsedTime: time });
     }
   };
 
-  const handlePause = () => {
+  const handleReset = () => {
     setRunning(false);
-    onUpdate({ elapsedTime: time });
+    setTime(0);
+    // Save the state when the stopwatch is reset
+    onUpdate({ elapsedTime: 0, startTime: null, pausedTime: null });
   };
 
   return (
-    <div className='bg-black'>
-      <div>{new Date(time).toISOString().substr(11, 8)}</div>
-      <button onClick={running ? handlePause : handleStart}>
+    <div className='text-black'>
+      <p>Elapsed Time: {time} seconds</p>
+      <button onClick={handleStartPause} className="py-1 px-2 bg-green-500 text-white rounded">
         {running ? 'Pause' : 'Start'}
+      </button>
+      <button onClick={handleReset} className="ml-2 py-1 px-2 bg-red-500 text-white rounded">
+        Reset
       </button>
     </div>
   );
