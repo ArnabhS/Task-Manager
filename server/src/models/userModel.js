@@ -15,16 +15,21 @@ const userSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    subscription:{
-      type:Boolean,
-      default:false
+    subscription: {
+      type: Boolean,
+      default: false,
     },
-    stripeCustomerId:{
-      type:String
+    stripeCustomerId: {
+      type: String,
     },
-    stripeSubscriptionId:{
-      type:String
-    }
+    stripeSubscriptionId: {
+      type: String,
+    },
+    subscriptionStatus: {
+      type: String,
+      enum: ['active', 'past_due', 'canceled', 'unpaid', 'trialing', 'incomplete', 'incomplete_expired'],
+      default: 'incomplete',
+    },
   },
   {
     timestamps: true,

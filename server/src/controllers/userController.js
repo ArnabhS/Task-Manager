@@ -89,7 +89,9 @@ const logoutUser = asyncHandler(async (req, res) => {
   const handleSubscription = async (req, res) => {
     try {
       const { email, paymentMethodId } = req.body;
-  
+      const id = req.params.id
+      console.log(id);
+      
       // Create a new Stripe customer
       const customer = await stripe.customers.create({
         email,
@@ -102,11 +104,11 @@ const logoutUser = asyncHandler(async (req, res) => {
       // Create a subscription for the customer
       const subscription = await stripe.subscriptions.create({
         customer: customer.id,
-        items: [{ price: 'price_XXXXXX' }], // Replace with your actual price ID
+        items: [{ price: process.env.PRICE_ID }], // Replace with your actual price ID
         expand: ['latest_invoice.payment_intent'],
       });
   
-      // Update the user model with subscription details
+      
       const user = await User.findByIdAndUpdate(
         req.params.id,
         { subscription: true, stripeCustomerId: customer.id, stripeSubscriptionId: subscription.id },
@@ -124,4 +126,5 @@ const logoutUser = asyncHandler(async (req, res) => {
     }
   };
 
-module.exports = { registerUser, loginUser, logoutUser, getUser, handleSubscription };
+  
+module.exports = { registerUser, loginUser, logoutUser, getUser, handleSubscription};

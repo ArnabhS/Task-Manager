@@ -5,6 +5,8 @@ import axios from "axios";
 import TaskList from "@/components/TaskList";
 import TaskFormModal from "@/components/TaskForm";
 import EditTaskFormModal from "@/components/EditTaskForm";
+import Link from "next/link";
+import Subscribe from "./Subscription";
 
 export default function Dashboard({ userId }) {
   const router = useRouter();
@@ -13,6 +15,8 @@ export default function Dashboard({ userId }) {
   const [showEditTaskFormModal, setShowEditTaskFormModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
   const [user, setUser] = useState(null);
+  const [taskLimitReached, setTaskLimitReached] = useState(false); // State to manage task limit
+  const [isSubscribed, setIsSubscribed] = useState(false);
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -33,9 +37,9 @@ export default function Dashboard({ userId }) {
         const response = await axios.get(`http://localhost:5000/api/user/${userId}`, {
           withCredentials: true,
         });
-        console.log(response.data, "user");
         const data = response.data;
         setUser(data);
+        setIsSubscribed(data.subscription);
       } catch (error) {
         if (error.response && error.response.status === 401) {
           router.push("/login");
@@ -48,6 +52,12 @@ export default function Dashboard({ userId }) {
   }, [router, userId]);
 
   const addTask = async (task) => {
+    if (tasks.length >= 5 && !user.subscription) {
+      setTaskLimitReached(true); 
+      setShowTaskFormModal(false);
+      return;
+    }
+
     try {
       const response = await axios.post('http://localhost:5000/api/tasks', task, {
         withCredentials: true,
@@ -57,14 +67,11 @@ export default function Dashboard({ userId }) {
     } catch (error) {
       if (error.response && error.response.status === 401) {
         router.push('/login');
-      } else if (error.response && error.response.status === 403) {
-        alert('Subscription required to add more than 5 tasks.');
       }
     }
   };
 
   const updateTask = async (id, updatedTask) => {
-    console.log(`Updating task with ID: ${id}`, updatedTask);
     try {
       const response = await axios.put(`http://localhost:5000/api/tasks/${id}`, updatedTask, {
         withCredentials: true,
@@ -109,7 +116,6 @@ export default function Dashboard({ userId }) {
         withCredentials: true,
       });
       const task = response.data;
-      console.log("Selected task for editing:", task);
       setSelectedTask(task);
       setShowEditTaskFormModal(true);
     } catch (error) {
@@ -126,6 +132,10 @@ export default function Dashboard({ userId }) {
     }
   };
 
+  const handleClick = async () => {
+    router.push(`/subscribe/${userId}`);
+  };
+
   return (
     <div className="flex flex-col md:flex-row h-screen">
       <aside className="w-full md:w-64 bg-gray-800 text-white p-4 md:p-6">
@@ -135,6 +145,16 @@ export default function Dashboard({ userId }) {
               <>
                 <h2 className="text-lg md:text-xl text-white font-bold">{user.name}</h2>
                 <p className="text-xs text-white md:text-sm">{user.email}</p>
+                {isSubscribed ? (
+                  <p className="text-green-500 mt-4">You are subscribed</p>
+                ) : (
+                  <button 
+                    onClick={handleClick} 
+                    className="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-700 mt-4 w-full"
+                  >
+                    Subscribe Now
+                  </button>
+                )}
               </>
             ) : (
               <p>Loading...</p>
@@ -154,20 +174,32 @@ export default function Dashboard({ userId }) {
       <main className="flex-1 p-4 md:p-8 bg-gray-100">
         <div className="flex justify-between items-center mb-4 md:mb-6">
           <h1 className="text-2xl md:text-3xl font-bold text-black">All Tasks</h1>
-          <button
-            onClick={() => setShowTaskFormModal(true)}
-            className="py-2 px-4 bg-indigo-500 text-white rounded hover:bg-indigo-700"
-          >
-            + Add New Task
-          </button>
+          {!taskLimitReached && !isSubscribed && (
+            <button
+              onClick={() => setShowTaskFormModal(true)}
+              className="py-2 px-4 bg-indigo-500 text-white rounded hover:bg-indigo-700"
+            >
+              + Add New Task
+            </button>
+          )}
         </div>
-        <TaskList
-          tasks={tasks}
-          onEdit={handleEditTask}
-          onDelete={deleteTask}
-          onComplete={completeTask}
-          onUpdate={handleUpdateTask}
-        />
+
+        {taskLimitReached ? (
+          <div className="text-center mt-8">
+            <p className="text-red-600 font-bold">You have reached your task limit.</p>
+            <button onClick={handleClick} className="text-blue-600 underline">
+              Click here to subscribe and add more tasks
+            </button>
+          </div>
+        ) : (
+          <TaskList
+            tasks={tasks}
+            onEdit={handleEditTask}
+            onDelete={deleteTask}
+            onComplete={completeTask}
+            onUpdate={handleUpdateTask}
+          />
+        )}
       </main>
       {showTaskFormModal && (
         <TaskFormModal onClose={() => setShowTaskFormModal(false)} onSave={addTask} />

@@ -7,6 +7,7 @@ const cookieParser = require('cookie-parser');
 const userRoutes= require('./routes/userRoutes.js')
 const taskRoutes= require('./routes/taskRoutes.js')
 const { verifyToken } = require('./middleware/authMiddleware.js');
+const stripe=require("stripe")(process.env.STRIPE_PRIVATE_KEY)
 dotenv.config();
 
 const app = express();
